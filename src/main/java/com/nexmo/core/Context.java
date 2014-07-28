@@ -80,6 +80,14 @@ public class Context {
             this.lengthSoFar = lengthSoFar;
         }
 
+        public int getTotalChargedUnits() {
+            return this.totalChargedUnits;
+        }
+
+        public long getLengthSoFar() {
+            return this.lengthSoFar;
+        }
+
         @Override
         public String toString() {
             return new StringBuilder("Context Stats[totalChargedUnits: ")

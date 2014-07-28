@@ -12,29 +12,32 @@ public class ChargingManager {
 
     public ChargingManager(final ContextRepository repository) {
         this.repository = repository;
-        this.pool = Executors.newScheduledThreadPool(10);
+        this.pool = null;
+        //this.pool = Executors.newScheduledThreadPool(10);
         // start ChargingTaskHere
     }
 
-    public void start(String sessionId, String connectionId) {
-        charge(sessionId, connectionId, ChargingInfo.charge(6));
+    public ContextStats start(String sessionId, String connectionId) {
+        return charge(sessionId, connectionId, ChargingInfo.charge(6));
     }
 
-    public void stop(String sessionId, String connectionId) {
-        charge(sessionId, connectionId, ChargingInfo.finalCharge(1));
+    public ContextStats stop(String sessionId, String connectionId) {
+        return charge(sessionId, connectionId, ChargingInfo.finalCharge(1));
     }
 
-    private void charge(final String sessionId,
+    private ContextStats charge(final String sessionId,
                         final String connectionId,
                         final ChargingInfo chargingInfo) {
         Context ctx = this.repository.get(sessionId, connectionId);
 
         if (ctx != null) {
-            System.out.printf("Charging context with [sessionId:%s connectionId:%s]%\n", sessionId, connectionId);
+            System.out.println("Charging context with [sessionId: "+sessionId+" connectionId: "+connectionId+"]");
             ContextStats stats = ctx.update(chargingInfo);
             System.out.println(stats);
-        } else {
-            System.out.printf("Failed to fetch context with [sessionId:%s connectionId:%s]%\n", sessionId, connectionId);
-        }
+            return stats;
+        } 
+
+        System.out.println("Failed to fetch context with [sessionId: "+sessionId+" connectionId: "+connectionId+"]");
+        return null;
     }
 }
