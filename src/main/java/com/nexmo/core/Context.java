@@ -15,6 +15,8 @@ public class Context {
     private long end;
     private long lastUpdatedMillis;
 
+    private boolean finished;
+
     public Context(final String sessionId, 
                    final String connectionId,
                    final Type type) {
@@ -23,17 +25,22 @@ public class Context {
         this.type = type;
 
         this.createdAt = System.currentTimeMillis();
+        this.finished = false;
     }
 
     public Type getType() {
         return this.type;
     }
 
-    public ContextStats update(ChargingInfo info) {
+    public ContextStats update(ChargingInfo info, boolean deltaUpdate) {
         if (info != null) {
             final int unitsCharged = info.getUnitsCharged();
             final long timeUpdated = info.getTimeUpdated();
             synchronized (this) {
+                if (this.finished || (this.start == 0 && deltaUpdate)) {
+                    return null;
+                }
+
                 if (this.start == 0) {
                     this.start = timeUpdated;
                     this.chargeCounter -= unitsCharged;
@@ -47,8 +54,10 @@ public class Context {
                     }
                     this.chargeCounter = 0;
                 }
+
                 if (info.isLastCharge()) {
                     this.end = timeUpdated;
+                    this.finished = true;
                 }
                 this.lastUpdatedMillis = timeUpdated;
                 return new ContextStats(this.totalCounter, timeUpdated - this.start);
