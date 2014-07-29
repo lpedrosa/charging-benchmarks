@@ -5,6 +5,12 @@ repositories {
     mavenCentral()
 }
 
+test{ 
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
 dependencies {
     testCompile 'junit:junit:4.11'
 }
